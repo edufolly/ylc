@@ -1,0 +1,25 @@
+name: ylc
+description: YouTube Live Chat
+
+# publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 0.0.1+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # https://pub.dev/packages/http
+  http: 0.12.1
+  # https://pub.dev/packages/shared_preferences
+  shared_preferences: 0.5.7+3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
