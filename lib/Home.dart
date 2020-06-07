@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ylc/AuthorDetails.dart';
 import 'package:ylc/Config.dart';
+import 'package:ylc/Settings.dart';
 import 'package:ylc/TextMessage.dart';
 
 ///
@@ -27,6 +29,8 @@ class _HomeState extends State<Home> {
   int sleepTime = 0;
   String pageToken;
   List<TextMessage> messages = [];
+  double messageFontSize;
+  double usernameFontSize;
 
   ///
   ///
@@ -42,10 +46,20 @@ class _HomeState extends State<Home> {
   void _initData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
+    messageFontSize = prefs.getDouble('messageFontSize') ?? 10.0;
+    usernameFontSize = prefs.getDouble('usernameFontSize') ?? 10.0;
+
     apiKey = prefs.getString('api_key');
     liveChatId = prefs.getString('live_chat_id');
 
     _loadData();
+  }
+
+  void _updatePrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    messageFontSize = prefs.getDouble('messageFontSize') ?? 10.0;
+    usernameFontSize = prefs.getDouble('usernameFontSize') ?? 10.0;
   }
 
   ///
@@ -181,25 +195,49 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<bool>(
-        stream: _controller.stream,
-        builder: (context, snapshot) {
-          return ListView.builder(
-            controller: _scrollController,
-            itemBuilder: (context, index) {
-              TextMessage message = messages[index];
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundImage:
-                      NetworkImage(message.authorDetails.profileImageUrl),
-                ),
-                title: Text(message.authorDetails.displayName),
-                subtitle: Text(message.displayMessage),
+      body: Stack(
+        children: [
+          StreamBuilder<bool>(
+            stream: _controller.stream,
+            builder: (context, snapshot) {
+              return ListView.builder(
+                controller: _scrollController,
+                itemBuilder: (context, index) {
+                  TextMessage message = messages[index];
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage:
+                          NetworkImage(message.authorDetails.profileImageUrl),
+                    ),
+                    title: Text(message.authorDetails.displayName,style: TextStyle(fontSize: usernameFontSize),),
+                    subtitle: Text(
+                      message.displayMessage,
+                      style: TextStyle(fontSize: messageFontSize),
+                    ),
+                  );
+                },
+                itemCount: messages.length,
               );
             },
-            itemCount: messages.length,
-          );
-        },
+          ),
+          Positioned(
+            right: 0,
+            top: 0,
+            child: MaterialButton(
+              minWidth: 0,
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Settings())
+                );
+                await _updatePrefs();
+              },
+              child: Icon(Icons.settings),
+              color: Colors.red,
+              shape: CircleBorder(),
+            ),
+          ),
+        ]
       ),
     );
   }

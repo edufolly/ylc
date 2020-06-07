@@ -7,11 +7,8 @@ import 'package:ylc/Login.dart';
 ///
 void main() {
   bool debug = false;
-
   assert(debug = true);
-
   Config.debug = debug;
-
   runApp(YLC());
 }
 
